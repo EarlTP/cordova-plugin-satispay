@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-satispay" version="0.1.0" xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>cordova-plugin-satispay</name>
+    <js-module name="SatispaySDK" src="www/SatispaySDK.js">
+        <clobbers target="cordova.plugins.SatispaySDK"/>
+    </js-module>
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="SatispaySDK">
+                <param name="android-package" value="com.satispay.sdk.plugin.SatispaySDK"/>
+            </feature>
+        </config-file>
+        <config-file parent="/*" target="AndroidManifest.xml"/>
+        <framework custom="true" src="src/android/satispay-sdk.gradle" type="gradleReference"/>
+        <source-file src="src/android/SatispaySDK.java" target-dir="src/com/satispay/sdk/plugin"/>
+    </platform>
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="SatispaySDK">
+                <param name="ios-package" value="SatispaySDK"/>
+            </feature>
+        </config-file>
+        <header-file src="src/ios/SatispaySDK.h"/>
+        <source-file src="src/ios/SatispaySDK.m"/>
+    </platform>
+</plugin>

@@ -1,0 +1,19 @@
+{
+  "name": "cordova-plugin-satispay",
+  "version": "0.1.0",
+  "description": "",
+  "cordova": {
+    "id": "cordova-plugin-satispay",
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova-android"
+  ],
+  "author": "Luca Chiavelli",
+  "license": "ISC"
+}
