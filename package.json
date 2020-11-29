@@ -1,7 +1,7 @@
 {
   "name": "cordova-plugin-satispay",
-  "version": "0.1.0",
-  "description": "",
+  "version": "1.0.0",
+  "description": "Cordova Plugin for Satispay SDK",
   "cordova": {
     "id": "cordova-plugin-satispay",
     "platforms": [
@@ -12,7 +12,10 @@
   "keywords": [
     "ecosystem:cordova",
     "cordova-ios",
-    "cordova-android"
+    "cordova-android",
+    "cordova",
+    "plugin",
+    "satispay"
   ],
   "author": "Luca Chiavelli",
   "license": "ISC"
