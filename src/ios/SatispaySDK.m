@@ -8,7 +8,8 @@
 - (void)isSatispayAvailable:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
-    NSString* appUrl = [command.arguments objectAtIndex:0];
+    BOOL useSandbox = [command.arguments objectAtIndex:0];
+    NSString* appUrl = useSandbox ? "satispay-stag://" : "satispay://";
 
     if (appUrl != nil && [appUrl length] > 0) {
         NSURL *url = [NSURL URLWithString: appUrl];

@@ -23,7 +23,8 @@ import com.satispay.satispayintent.SatispayIntent;
  */
 public class SatispaySDK extends CordovaPlugin {
     private static final String LOG_TAG = "SatispaySDK";
-    private static final int REQUEST_PAY_CHARGE_ID = 3636;
+    private static final int REQUEST_PAY_CHARGE_ID = 5471;
+    private static final int REQUEST_PRE_AUTHORIZED_PAYMENTS = 5472;
     private CallbackContext callbackContext = null;
     private boolean useSandbox = false;
 
@@ -36,14 +37,19 @@ public class SatispaySDK extends CordovaPlugin {
 
         try {
             switch (action) {
-                case "openApp":
+                case "isSatispayAvailable":
                     this.useSandbox = args.getBoolean(0);
-                    this.openApp(callbackContext);
+                    this.isSatispayAvailable(callbackContext);
                     return true;
                 case "payChargeId":
                     this.useSandbox = args.getBoolean(0);
                     String chargeId = args.getString(1);
                     this.payChargeId(chargeId, callbackContext);
+                    return true;
+                case "satispayPreAuthorizedPayment":
+                    this.useSandbox = args.getBoolean(0);
+                    String token = args.getString(1);
+                    this.satispayPreAuthorizedPayment(token, callbackContext);
                     return true;
                 default:
                     this.callbackContext.error("Method not found");
@@ -56,24 +62,15 @@ public class SatispaySDK extends CordovaPlugin {
         }
     }
 
-    public void openApp(CallbackContext callbackContext) {
+    public void isSatispayAvailable(CallbackContext callbackContext) {
         Context context = cordova.getActivity().getApplicationContext();
         String scheme = SatispayIntent.PRODUCTION_SCHEME;
-        String appPackage = SatispayIntent.PRODUCTION_APP_PACKAGE;
         if (this.useSandbox) {
             scheme = SatispayIntent.SANDBOX_SCHEME;
-            appPackage = SatispayIntent.SANDBOX_APP_PACKAGE;
         }
 
         boolean isSatispayAvailable = SatispayIntent.isSatispayAvailable(context, scheme);
-
-        if (isSatispayAvailable) {
-            Intent openAppIntent = SatispayIntent.openApp(scheme);
-            this.cordova.getActivity().startActivity(openAppIntent);
-        } else {
-            Intent openPlayStoreIntent = SatispayIntent.openPlayStore(context, appPackage);
-            this.cordova.getActivity().startActivity(openPlayStoreIntent);
-        }
+        this.callbackContext.sendPluginResult(new PluginResult(Status.OK, isSatispayAvailable));
     }
 
     public void payChargeId(String chargeId, CallbackContext callbackContext) {
@@ -93,6 +90,31 @@ public class SatispaySDK extends CordovaPlugin {
             if (SatispayIntent.isIntentSafe(context, intent)) {
                 cordova.setActivityResultCallback(this);
                 this.cordova.getActivity().startActivityForResult(intent, REQUEST_PAY_CHARGE_ID);
+            } else {
+                this.callbackContext.error("Cannot open this URI");
+            }
+        } else {
+            this.callbackContext.error(getErrorHint(apiStatus.getCode()));
+        }
+    }
+
+    public void satispayPreAuthorizedPayment(String token, CallbackContext callbackContext) {
+        Context context = cordova.getActivity().getApplicationContext();
+        String scheme = SatispayIntent.PRODUCTION_SCHEME;
+        String appPackage = SatispayIntent.PRODUCTION_APP_PACKAGE;
+        if (this.useSandbox) {
+            scheme = SatispayIntent.SANDBOX_SCHEME;
+            appPackage = SatispayIntent.SANDBOX_APP_PACKAGE;
+        }
+
+        Uri uriToCheck = SatispayIntent.uriForPreAuthorizedPayment(scheme, "generic", "TEST_API");
+        SatispayIntent.ApiStatus apiStatus = SatispayIntent.getApiStatus(context, appPackage, uriToCheck);
+        if (apiStatus.isValidRequest()) {
+            String appId = "generic";
+            Intent intent = SatispayIntent.preAuthorizedPayment(scheme, appId, token);
+            if (SatispayIntent.isIntentSafe(context, intent)) {
+                cordova.setActivityResultCallback(this);
+                this.cordova.getActivity().startActivityForResult(intent, REQUEST_PRE_AUTHORIZED_PAYMENTS);
             } else {
                 this.callbackContext.error("Cannot open this URI");
             }
@@ -138,6 +160,18 @@ public class SatispaySDK extends CordovaPlugin {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_PAY_CHARGE_ID) {
+            if (resultCode == Activity.RESULT_OK) {
+                PluginResult result = new PluginResult(PluginResult.Status.OK, "payment ok");
+                result.setKeepCallback(true);
+                this.callbackContext.sendPluginResult(result);
+            } else {
+                PluginResult result = new PluginResult(PluginResult.Status.ERROR, "payment aborted");
+                result.setKeepCallback(true);
+                this.callbackContext.sendPluginResult(result);
+            }
+        }
+
+        if (requestCode == REQUEST_PRE_AUTHORIZED_PAYMENTS) {
             if (resultCode == Activity.RESULT_OK) {
                 PluginResult result = new PluginResult(PluginResult.Status.OK, "payment ok");
                 result.setKeepCallback(true);
