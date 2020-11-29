@@ -18,5 +18,13 @@
     "satispay"
   ],
   "author": "Luca Chiavelli",
-  "license": "GNU General Public License v3.0"
+  "license": "GNU General Public License v3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EarlTP/cordova-plugin-satispay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EarlTP/cordova-plugin-satispay/issues"
+  },
+  "homepage": "https://github.com/EarlTP/cordova-plugin-satispay#readme"
 }
